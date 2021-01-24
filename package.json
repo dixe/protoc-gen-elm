@@ -35,6 +35,5 @@
     "url": "git+ssh://git@github.com/eriktim/protoc-gen-elm.git"
   },
   "author": "Erik Timmers",
-  "license": "BSD-3-Clause",
-
+  "license": "BSD-3-Clause"
 }
