@@ -1,5 +1,5 @@
 {
-  "name": "protoc-gen-elm",
+  "name": "protoc-gen-elmApi",
   "version": "1.0.0-beta-2",
   "description": "Elm protoc plugin",
   "keywords": [
@@ -28,7 +28,7 @@
   },
   "preferGlobal": "true",
   "bin": {
-    "protoc-gen-elm": "./index.js"
+    "protoc-gen-elmApi": "./index.js"
   },
   "repository": {
     "type": "git",
@@ -36,8 +36,5 @@
   },
   "author": "Erik Timmers",
   "license": "BSD-3-Clause",
-  "bugs": {
-    "url": "https://github.com/eriktim/protoc-gen-elm/issues"
-  },
-  "homepage": "https://github.com/eriktim/protoc-gen-elm#readme"
+
 }

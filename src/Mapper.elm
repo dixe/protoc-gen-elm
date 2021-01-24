@@ -1,7 +1,7 @@
 module Mapper exposing (map)
 
 import Dict exposing (Dict)
-import Internal.Google.Protobuf exposing (DescriptorProto, DescriptorProtoNestedType(..), EnumDescriptorProto, FieldDescriptorProto, FieldDescriptorProtoLabel(..), FieldDescriptorProtoType(..), FileDescriptorProto)
+import Internal.Google.Protobuf exposing (DescriptorProto, DescriptorProtoNestedType(..), EnumDescriptorProto, FieldDescriptorProto, FieldDescriptorProtoLabel(..), FieldDescriptorProtoType(..), FileDescriptorProto, ServiceDescriptorProto)
 import List.Extra
 import Model exposing (..)
 import Set exposing (Set)
@@ -42,8 +42,10 @@ map files descriptors =
                                         , enums = List.map (enum syntax Nothing) descriptor.enumType
                                         , maps = []
                                         , imports = List.filter ((/=) pkg) <| dependencies fileDict descriptor.dependency
+                                        , rpcs = []
                                         }
                                     |> append (concatMap (message syntax pkg Nothing) descriptor.messageType)
+                                    |> append (concatMap (rpc syntax pkg) descriptor.service)
                             )
                             empty
                             packageDescriptors
@@ -53,6 +55,7 @@ map files descriptors =
                 , messages = struct.messages
                 , enums = struct.enums
                 , imports = Set.fromList struct.imports
+                , rpcs = struct.rpcs
                 }
             )
 
@@ -71,6 +74,7 @@ type alias Struct =
     , enums : List Enum
     , maps : List Map
     , imports : List String
+    , rpcs : List Rpc
     }
 
 
@@ -80,15 +84,17 @@ empty =
     , enums = []
     , maps = []
     , imports = []
+    , rpcs = []
     }
 
 
 append : Struct -> Struct -> Struct
-append { messages, enums, maps, imports } struct =
+append { messages, enums, maps, imports, rpcs } struct =
     { messages = struct.messages ++ messages
     , enums = struct.enums ++ enums
     , maps = struct.maps ++ maps
     , imports = struct.imports ++ imports
+    , rpcs = struct.rpcs ++ rpcs
     }
 
 
@@ -121,6 +127,25 @@ enum syntax prefix descriptor =
 
 
 
+-- RPC
+
+
+rpc : Syntax -> String -> ServiceDescriptorProto -> Struct
+rpc syntax pkg descriptor =
+    { empty
+        | rpcs =
+            List.map
+                (\method ->
+                    { name = descriptor.name ++ method.name
+                    , inputType = method.inputType
+                    , outputType = method.outputType
+                    }
+                )
+                descriptor.method
+    }
+
+
+
 -- MESSAGE
 
 
@@ -133,6 +158,7 @@ message syntax pkg prefix descriptor =
         fieldsMeta =
             List.map (messageFieldMeta pkg name) descriptor.field
 
+        nested : Struct
         nested =
             case descriptor.nestedType of
                 DescriptorProtoNestedType nestedType ->
@@ -155,6 +181,7 @@ message syntax pkg prefix descriptor =
                 , enums = []
                 , maps = []
                 , imports = []
+                , rpcs = []
                 }
 
         oneOfFieldNames =
@@ -164,6 +191,7 @@ message syntax pkg prefix descriptor =
     , enums = List.map (enum syntax <| Just descriptor.name) descriptor.enumType
     , maps = struct.maps
     , imports = List.filterMap .importedPackage fieldsMeta ++ struct.imports
+    , rpcs = []
     }
         |> append nested
 
@@ -248,6 +276,7 @@ mapField pkg name descriptor =
                       }
                     ]
                 , imports = "Dict" :: List.filterMap identity [ keyImport, valueImport ]
+                , rpcs = []
                 }
             )
             field1

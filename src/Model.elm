@@ -1,4 +1,4 @@
-module Model exposing (Cardinality(..), DataType, Enum, Field(..), FieldName, FieldNumber, FieldType(..), Map, Message, OneOf, Package)
+module Model exposing (Cardinality(..), DataType, Enum, Field(..), FieldName, FieldNumber, FieldType(..), Map, Message, OneOf, Package, Rpc)
 
 import Set
 
@@ -7,6 +7,7 @@ type alias Package =
     { name : String
     , files : List String
     , messages : List Message
+    , rpcs : List Rpc
     , enums : List Enum
     , imports : Set.Set String
     }
@@ -16,6 +17,13 @@ type alias Message =
     { dataType : DataType
     , isTopLevel : Bool
     , fields : List ( FieldName, Field )
+    }
+
+
+type alias Rpc =
+    { name : String
+    , inputType : String
+    , outputType : String
     }
 
 
