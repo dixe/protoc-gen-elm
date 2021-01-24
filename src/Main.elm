@@ -92,10 +92,11 @@ map versions request =
                         { name = packageFile pkg.name
                         , insertionPoint = ""
                         , content = Generator.generate allVersions pkg
+                        , generatedCodeInfo = Nothing
                         }
                     )
     in
-    CodeGeneratorResponse "" files
+    CodeGeneratorResponse "" 2 files
 
 
 version : Version -> String
@@ -110,4 +111,4 @@ packageFile =
 
 fail : String -> CodeGeneratorResponse
 fail err =
-    CodeGeneratorResponse err []
+    CodeGeneratorResponse err 2 []
