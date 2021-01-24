@@ -342,17 +342,21 @@ rpc value =
 
         inType =
             removePackageName value.inputType
+
+        name =
+            String.Extra.decapitalize value.name
     in
     { empty
         | rpcs =
             [ rpcString
                 |> String.trim
-                |> (interpolate "name" <| String.Extra.decapitalize value.name)
+                |> interpolate "name" name
                 |> (interpolate "RequestEncoder" <| encoderName inType)
                 |> (interpolate "ResponseDecoder" <| decoderName outType)
                 |> interpolate "RequestType" inType
                 |> interpolate "ResponseType" outType
             ]
+        , exposedTypes = [ name ]
     }
 
 
